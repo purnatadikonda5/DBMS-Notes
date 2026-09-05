@@ -10,3 +10,14 @@ That is exactly what **Partitioning** is. It is the technique of dividing a larg
 
 > [!IMPORTANT]
 > **The Single Machine Rule:** In standard partitioning, even though the data is logically split into smaller chunks, **all of those chunks still physically live on the exact same computer (server)**. You are simply organizing the hard drive better so the local CPU can process queries faster without scanning the entire giant database.
+
+### When Do We Apply Partitioning?
+You don't need to partition every database. We introduce this technique under two specific conditions:
+1. **The Dataset is Too Huge:** The sheer volume of data makes backups, indexing, and basic management too tedious and slow.
+2. **The Traffic is Too Heavy:** The number of requests hitting the database is so large that a single server's CPU queues up, causing the system's response time to spike.
+
+### The Advantages of Partitioning
+* **Performance & Parallelism:** Multiple read/write operations can happen simultaneously across different partitions.
+* **Availability:** If one partition is corrupted or goes down, the rest of the database remains accessible.
+* **Manageability:** Smaller chunks of data are vastly easier to backup, restore, and maintain.
+* **Cost Reduction:** Scaling up a single, massive supercomputer (vertical scaling) is astronomically expensive. Partitioning allows you to use cheaper, standard servers.
