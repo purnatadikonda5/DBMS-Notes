@@ -44,3 +44,10 @@ This is where **Sharding** comes in.
 
 ### What is Sharding?
 Sharding is a distinct distributed architecture where you split a massive database across **multiple completely different physical computers**. It borrows the idea of horizontal slicing, but instead of keeping the data on one machine, it distributes it across a network.
+
+### Core Concepts: Shards, Shard IDs, and Shard Keys
+* **A Shard:** Each of these independent physical computers—holding its own specific slice of the overall data—is called a **Shard**. Each Shard is an actual, fully-functioning database server sitting in a data center.
+* **A Shard ID:** Because the data is spread across many computers, the system assigns a unique physical identifier (like `Shard 0`, `Shard 1`, `Shard 2`) to each machine. This **Shard ID** acts like a street address, telling the network exactly which computer to send the query to.
+* **A Shard Key:** This is the specific column in your database table (such as `user_id` or `email`) that the system uses to determine where a row should live. The system looks at the Shard Key to calculate the final Shard ID.
+
+While they are separate computers, your application seamlessly treats them all together as one giant, logical database.
