@@ -35,3 +35,12 @@ This involves slicing the data relation vertically.
 This involves slicing the data relation horizontally. 
 * In this method, independent chunks of *complete* data rows (tuples) are stored in different partitions. For example, Users A-M go into Partition A, and Users N-Z go into Partition B.
 * The structure of the table remains identical across all partitions; only the raw rows are divided.
+
+## ⭐ Part 3: What is Sharding? (Distributed Horizontal Partitioning)
+
+As established in Part 1, standard partitioning is limited by the size of a single physical computer. Eventually, your database grows so massive that no single computer in the world has enough hard drive space or CPU power to hold it. 
+
+This is where **Sharding** comes in.
+
+### What is Sharding?
+Sharding is a distinct distributed architecture where you split a massive database across **multiple completely different physical computers**. It borrows the idea of horizontal slicing, but instead of keeping the data on one machine, it distributes it across a network.
