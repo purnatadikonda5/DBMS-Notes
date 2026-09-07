@@ -51,3 +51,10 @@ Sharding is a distinct distributed architecture where you split a massive databa
 * **A Shard Key:** This is the specific column in your database table (such as `user_id` or `email`) that the system uses to determine where a row should live. The system looks at the Shard Key to calculate the final Shard ID.
 
 While they are separate computers, your application seamlessly treats them all together as one giant, logical database.
+
+### The Routing Layer & The Math
+Because the data is spread out, the application cannot just send a query randomly. You must introduce a **Routing Layer**. 
+
+When a request comes in, the router runs a deterministic math formula—a **Hash Function**—directly on the **Shard Key**. 
+For example, if the Shard Key is `user_id`, the math might be: `user_id % 3`. 
+If `user_id = 99`, then `99 % 3 = 0`. The router now guarantees with 100% mathematical certainty that User 99 lives on Shard 0.
