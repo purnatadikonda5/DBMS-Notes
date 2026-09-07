@@ -58,3 +58,23 @@ Because the data is spread out, the application cannot just send a query randoml
 When a request comes in, the router runs a deterministic math formula—a **Hash Function**—directly on the **Shard Key**. 
 For example, if the Shard Key is `user_id`, the math might be: `user_id % 3`. 
 If `user_id = 99`, then `99 % 3 = 0`. The router now guarantees with 100% mathematical certainty that User 99 lives on Shard 0.
+
+```mermaid
+flowchart TD
+    App["👨‍💻 Client Application"] --> Router
+    
+    Router{"⚙️ Routing Layer\nMath: (user_id % 3)"}
+    
+    subgraph Cluster [Distributed Shard Cluster]
+        direction LR
+        Shard0[("Shard 0\n(user_id: 3, 6, 99)")]:::shard
+        Shard1[("Shard 1\n(user_id: 1, 4, 100)")]:::shard
+        Shard2[("Shard 2\n(user_id: 2, 5, 101)")]:::shard
+    end
+    
+    Router -- "If remainder is 0" --> Shard0
+    Router -- "If remainder is 1" --> Shard1
+    Router -- "If remainder is 2" --> Shard2
+    
+    classDef shard fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
+```
