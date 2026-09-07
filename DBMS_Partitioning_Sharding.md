@@ -78,3 +78,11 @@ flowchart TD
     
     classDef shard fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
 ```
+
+## Part 4: Challenge 1 - The Scatter-Gather Problem
+
+While sharding provides massive scale, it introduces complex distributed networking problems.
+
+### The Problem
+If your database is sharded by `department_id`, and you run `SELECT * FROM employee WHERE id = 120`, the Routing Layer has a crisis. Because you didn't provide the `department_id` (the shard key), the router has no math to run. 
+It is forced to **Scatter** the query to every single shard, wait for all of them to search their hard drives, and **Gather** the results. This consumes massive network bandwidth and destroys the performance benefits of sharding.
