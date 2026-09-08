@@ -96,3 +96,26 @@ If you frequently query by a non-shard key (like `id`), you create a GSI. A GSI 
 
 ### The Trade-off (The Double Hop)
 Using a GSI avoids the Scatter-Gather disaster, but it forces a network double-hop. You trade raw local speed for infinite, reliable scale.
+
+```mermaid
+flowchart TD
+    Router["⚙️ Routing Layer\nQuery: WHERE id = 120"]
+    
+    subgraph GSI [GSI Cluster (Sharded by ID)]
+        direction TB
+        GSI_Node[("GSI Shard\n(id: 120 -> dept: Sales)")]:::gsi
+    end
+    
+    subgraph Data [Data Cluster (Sharded by Department)]
+        direction TB
+        Data_Node[("Data Shard 'Sales'\n(Full Profile for ID 120)")]:::shard
+    end
+    
+    Router == "1. Lookup ID" ==> GSI_Node
+    GSI_Node -. "Returns dept = 'Sales'" .-> Router
+    Router == "2. Fetch Profile" ==> Data_Node
+    Data_Node -. "Returns Full Row" .-> Router
+    
+    classDef gsi fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef shard fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
+```
