@@ -86,3 +86,13 @@ While sharding provides massive scale, it introduces complex distributed network
 ### The Problem
 If your database is sharded by `department_id`, and you run `SELECT * FROM employee WHERE id = 120`, the Routing Layer has a crisis. Because you didn't provide the `department_id` (the shard key), the router has no math to run. 
 It is forced to **Scatter** the query to every single shard, wait for all of them to search their hard drives, and **Gather** the results. This consumes massive network bandwidth and destroys the performance benefits of sharding.
+
+### The Solution: Global Secondary Indexes (GSI)
+If you frequently query by a non-shard key (like `id`), you create a GSI. A GSI is a separate, specialized table that maps the `id` to the actual Shard location.
+
+**How does a GSI not crash from being too big?**
+1. **It's a Skinny Table:** A GSI only holds two columns: `[Search_Key, Location_Pointer]`. Millions of these skinny rows fit easily in ultra-fast RAM.
+2. **The GSI is also Sharded:** We don't put the GSI on one machine; we shard the index itself based on the `id`.
+
+### The Trade-off (The Double Hop)
+Using a GSI avoids the Scatter-Gather disaster, but it forces a network double-hop. You trade raw local speed for infinite, reliable scale.
