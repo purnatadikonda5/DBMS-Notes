@@ -119,3 +119,9 @@ flowchart TD
     classDef gsi fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
     classDef shard fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
 ```
+
+## Part 5: Challenge 2 - Data Skew & Hotspots
+
+### The Celebrity Problem
+Imagine you shard a social media database alphabetically by username. The shard holding users 'A' to 'C' happens to contain a massive global celebrity. Whenever that celebrity posts, millions of users query that single shard. 
+That one server crashes from overload (a **Hotspot**), while the other shards sit completely idle.
