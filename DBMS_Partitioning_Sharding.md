@@ -132,3 +132,7 @@ That one server crashes from overload (a **Hotspot**), while the other shards si
    * Posts from January go to Server A.
    * Posts from February go to Server B.
    * By partitioning *time*, we force new traffic to hit a different server each month, protecting historical servers from current viral traffic. When users scroll down, the app paginates and asks for highly specific time-buckets, preventing Scatter-Gather.
+
+## Part 6: Challenge 3 - The Distributed Join
+
+In a single database, joining an `Orders` table with a `Users` table is instant. But in a sharded system, User A lives on Server 1, and User A's Orders live on Server 4. Pulling gigabytes of data across the network to join them is incredibly slow.
