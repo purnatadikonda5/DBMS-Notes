@@ -125,3 +125,10 @@ flowchart TD
 ### The Celebrity Problem
 Imagine you shard a social media database alphabetically by username. The shard holding users 'A' to 'C' happens to contain a massive global celebrity. Whenever that celebrity posts, millions of users query that single shard. 
 That one server crashes from overload (a **Hotspot**), while the other shards sit completely idle.
+
+### The Solutions
+1. **Consistent Hashing:** Instead of alphabetical sharding, we run the shard key through a cryptographic hash function (like MD5). This scrambles the inputs, distributing the data purely randomly and evenly across all servers.
+2. **Compound Shard Keys:** What if the celebrity is just one user and still crashes the server? We combine attributes: `username + month_year`. 
+   * Posts from January go to Server A.
+   * Posts from February go to Server B.
+   * By partitioning *time*, we force new traffic to hit a different server each month, protecting historical servers from current viral traffic. When users scroll down, the app paginates and asks for highly specific time-buckets, preventing Scatter-Gather.
