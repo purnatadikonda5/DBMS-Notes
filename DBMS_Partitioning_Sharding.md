@@ -136,3 +136,12 @@ That one server crashes from overload (a **Hotspot**), while the other shards si
 ## Part 6: Challenge 3 - The Distributed Join
 
 In a single database, joining an `Orders` table with a `Users` table is instant. But in a sharded system, User A lives on Server 1, and User A's Orders live on Server 4. Pulling gigabytes of data across the network to join them is incredibly slow.
+
+### Solution A: Data Locality (Co-location)
+We purposefully design the system so related data shares the **exact same shard key** (e.g., `user_id`). 
+
+Because the Router uses deterministic math (e.g., `user_id % 3`), it doesn't care what table the data belongs to. 
+* If Alice (`user_id = 99`) is saved in the Users table: `99 % 3 = 0` -> **Server 0**.
+* If Alice buys a phone in the Orders table (`user_id = 99`): `99 % 3 = 0` -> **Server 0**.
+
+The math guarantees all of Alice's related data lands on the exact same physical hard drive. The join can now happen locally on Server 0 with zero network lag!
