@@ -145,3 +145,6 @@ Because the Router uses deterministic math (e.g., `user_id % 3`), it doesn't car
 * If Alice buys a phone in the Orders table (`user_id = 99`): `99 % 3 = 0` -> **Server 0**.
 
 The math guarantees all of Alice's related data lands on the exact same physical hard drive. The join can now happen locally on Server 0 with zero network lag!
+
+### Solution B: Denormalization
+We stop joining entirely. Instead of keeping a separate `Address` table, we duplicate the address text directly inside the `Orders` table. It wastes some disk space, but disk space is cheap compared to slow network calls.
