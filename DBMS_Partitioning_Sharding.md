@@ -148,3 +148,10 @@ The math guarantees all of Alice's related data lands on the exact same physical
 
 ### Solution B: Denormalization
 We stop joining entirely. Instead of keeping a separate `Address` table, we duplicate the address text directly inside the `Orders` table. It wastes some disk space, but disk space is cheap compared to slow network calls.
+
+## Part 7: Challenge 4 - Distributed Transactions
+
+Imagine transferring $100 from Alice (Server 1) to Bob (Server 2). The system deducts $100 from Alice, but right before adding it to Bob, Server 2 crashes. Keeping data perfectly consistent across machines during failures is the hardest problem in distributed systems.
+
+### Solution A: Two-Phase Commit (2PC)
+A central coordinator acts as a referee. It asks Server 1 and Server 2 to "prepare" and lock their data. Only when *both* servers confirm they are 100% ready and error-free does the coordinator send the final "commit" command. If anyone hesitates, it aborts.
