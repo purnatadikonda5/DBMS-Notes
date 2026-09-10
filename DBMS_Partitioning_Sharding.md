@@ -3,10 +3,12 @@
 Welcome to the masterclass on database partitioning and sharding. This guide will walk you through how to break down massive databases to achieve infinite scale, and how to solve the distributed engineering problems that arise when you do.
 
 ## ⭐ Part 1: What is Partitioning?
+<details>
+<summary><b>📖 Click to read this section</b></summary>
 
 Imagine you have a massive, incredibly heavy textbook. Instead of carrying the entire book just to read one specific chapter, you separate it into smaller, individual booklets. 
 
-That is exactly what **Partitioning** is. It is the technique of dividing a large database—along with its indexes and metrics—into smaller, manageable slices of data.
+That is exactly what **Partitioning** is. It is the technique of dividing a large database—along with its indexes and metrics—into smaller, manageable slices of data. 
 
 > [!IMPORTANT]
 > **The Single Machine Rule:** In standard partitioning, even though the data is logically split into smaller chunks, **all of those chunks still physically live on the exact same computer (server)**. You are simply organizing the hard drive better so the local CPU can process queries faster without scanning the entire giant database.
@@ -22,7 +24,11 @@ You don't need to partition every database. We introduce this technique under tw
 * **Manageability:** Smaller chunks of data are vastly easier to backup, restore, and maintain.
 * **Cost Reduction:** Scaling up a single, massive supercomputer (vertical scaling) is astronomically expensive. Partitioning allows you to use cheaper, standard servers.
 
+</details>
+
 ## ⭐ Part 2: Vertical vs Horizontal Partitioning
+<details>
+<summary><b>📖 Click to read this section</b></summary>
 
 Depending on how your data is accessed, there are two primary ways to slice a database table.
 
@@ -36,7 +42,11 @@ This involves slicing the data relation horizontally.
 * In this method, independent chunks of *complete* data rows (tuples) are stored in different partitions. For example, Users A-M go into Partition A, and Users N-Z go into Partition B.
 * The structure of the table remains identical across all partitions; only the raw rows are divided.
 
+</details>
+
 ## ⭐ Part 3: What is Sharding? (Distributed Horizontal Partitioning)
+<details>
+<summary><b>📖 Click to read this section</b></summary>
 
 As established in Part 1, standard partitioning is limited by the size of a single physical computer. Eventually, your database grows so massive that no single computer in the world has enough hard drive space or CPU power to hold it. 
 
@@ -50,7 +60,7 @@ Sharding is a distinct distributed architecture where you split a massive databa
 * **A Shard ID:** Because the data is spread across many computers, the system assigns a unique physical identifier (like `Shard 0`, `Shard 1`, `Shard 2`) to each machine. This **Shard ID** acts like a street address, telling the network exactly which computer to send the query to.
 * **A Shard Key:** This is the specific column in your database table (such as `user_id` or `email`) that the system uses to determine where a row should live. The system looks at the Shard Key to calculate the final Shard ID.
 
-While they are separate computers, your application seamlessly treats them all together as one giant, logical database.
+While they are separate computers, your application seamlessly treats them all together as one giant, logical database. 
 
 ### The Routing Layer & The Math
 Because the data is spread out, the application cannot just send a query randomly. You must introduce a **Routing Layer**. 
@@ -63,13 +73,13 @@ If `user_id = 99`, then `99 % 3 = 0`. The router now guarantees with 100% mathem
 flowchart TD
     App["👨‍💻 Client Application"] --> Router
     
-    Router{"⚙️ Routing Layer\nMath: (user_id % 3)"}
+    Router{"⚙️ Routing Layer\\nMath: (user_id % 3)"}
     
     subgraph Cluster [Distributed Shard Cluster]
         direction LR
-        Shard0[("Shard 0\n(user_id: 3, 6, 99)")]:::shard
-        Shard1[("Shard 1\n(user_id: 1, 4, 100)")]:::shard
-        Shard2[("Shard 2\n(user_id: 2, 5, 101)")]:::shard
+        Shard0[("Shard 0\\n(user_id: 3, 6, 99)")]:::shard
+        Shard1[("Shard 1\\n(user_id: 1, 4, 100)")]:::shard
+        Shard2[("Shard 2\\n(user_id: 2, 5, 101)")]:::shard
     end
     
     Router -- "If remainder is 0" --> Shard0
@@ -79,7 +89,11 @@ flowchart TD
     classDef shard fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
 ```
 
+</details>
+
 ## Part 4: Challenge 1 - The Scatter-Gather Problem
+<details>
+<summary><b>📖 Click to read this section</b></summary>
 
 While sharding provides massive scale, it introduces complex distributed networking problems.
 
@@ -99,16 +113,16 @@ Using a GSI avoids the Scatter-Gather disaster, but it forces a network double-h
 
 ```mermaid
 flowchart TD
-    Router["⚙️ Routing Layer\nQuery: WHERE id = 120"]
+    Router["⚙️ Routing Layer\\nQuery: WHERE id = 120"]
     
     subgraph GSI [GSI Cluster (Sharded by ID)]
         direction TB
-        GSI_Node[("GSI Shard\n(id: 120 -> dept: Sales)")]:::gsi
+        GSI_Node[("GSI Shard\\n(id: 120 -> dept: Sales)")]:::gsi
     end
     
     subgraph Data [Data Cluster (Sharded by Department)]
         direction TB
-        Data_Node[("Data Shard 'Sales'\n(Full Profile for ID 120)")]:::shard
+        Data_Node[("Data Shard 'Sales'\\n(Full Profile for ID 120)")]:::shard
     end
     
     Router == "1. Lookup ID" ==> GSI_Node
@@ -120,7 +134,11 @@ flowchart TD
     classDef shard fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
 ```
 
+</details>
+
 ## Part 5: Challenge 2 - Data Skew & Hotspots
+<details>
+<summary><b>📖 Click to read this section</b></summary>
 
 ### The Celebrity Problem
 Imagine you shard a social media database alphabetically by username. The shard holding users 'A' to 'C' happens to contain a massive global celebrity. Whenever that celebrity posts, millions of users query that single shard. 
@@ -133,7 +151,11 @@ That one server crashes from overload (a **Hotspot**), while the other shards si
    * Posts from February go to Server B.
    * By partitioning *time*, we force new traffic to hit a different server each month, protecting historical servers from current viral traffic. When users scroll down, the app paginates and asks for highly specific time-buckets, preventing Scatter-Gather.
 
+</details>
+
 ## Part 6: Challenge 3 - The Distributed Join
+<details>
+<summary><b>📖 Click to read this section</b></summary>
 
 In a single database, joining an `Orders` table with a `Users` table is instant. But in a sharded system, User A lives on Server 1, and User A's Orders live on Server 4. Pulling gigabytes of data across the network to join them is incredibly slow.
 
@@ -149,7 +171,11 @@ The math guarantees all of Alice's related data lands on the exact same physical
 ### Solution B: Denormalization
 We stop joining entirely. Instead of keeping a separate `Address` table, we duplicate the address text directly inside the `Orders` table. It wastes some disk space, but disk space is cheap compared to slow network calls.
 
+</details>
+
 ## Part 7: Challenge 4 - Distributed Transactions
+<details>
+<summary><b>📖 Click to read this section</b></summary>
 
 Imagine transferring $100 from Alice (Server 1) to Bob (Server 2). The system deducts $100 from Alice, but right before adding it to Bob, Server 2 crashes. Keeping data perfectly consistent across machines during failures is the hardest problem in distributed systems.
 
@@ -161,3 +187,5 @@ Heavily used in modern microservices. It breaks the transaction into local steps
 * Step 1: Deduct Alice (Success! Send message to Step 2).
 * Step 2: Add to Bob (Fails!).
 * If Step 2 fails, the system automatically runs a "Compensating Transaction"—a programmatic undo—to refund Alice's account, reversing the work step-by-step.
+
+</details>
