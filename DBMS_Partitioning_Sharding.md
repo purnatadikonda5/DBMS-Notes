@@ -155,3 +155,9 @@ Imagine transferring $100 from Alice (Server 1) to Bob (Server 2). The system de
 
 ### Solution A: Two-Phase Commit (2PC)
 A central coordinator acts as a referee. It asks Server 1 and Server 2 to "prepare" and lock their data. Only when *both* servers confirm they are 100% ready and error-free does the coordinator send the final "commit" command. If anyone hesitates, it aborts.
+
+### Solution B: The Saga Pattern
+Heavily used in modern microservices. It breaks the transaction into local steps. 
+* Step 1: Deduct Alice (Success! Send message to Step 2).
+* Step 2: Add to Bob (Fails!).
+* If Step 2 fails, the system automatically runs a "Compensating Transaction"—a programmatic undo—to refund Alice's account, reversing the work step-by-step.
