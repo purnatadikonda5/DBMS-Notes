@@ -25,7 +25,21 @@ In a standard replica set, nodes are given specific roles:
 * **Primary Node (Leader/Master):** The boss. It is usually the only node allowed to accept new data or changes (Writes).
 * **Secondary Nodes (Followers/Slaves):** These nodes maintain a strict copy of the Primary's data. They handle read requests (like "show me my profile") but cannot accept writes.
 
+```mermaid
+flowchart TD
+    subgraph Cluster [Database Replica Set]
+        direction TB
+        Primary["⭐ Primary Node\n(Receives Writes)"]:::primary
+        Sec1["Secondary Node\n(Receives Reads)"]:::secondary
+        Sec2["Secondary Node\n(Receives Reads)"]:::secondary
+        
+        Primary -. "Syncs Data" .-> Sec1
+        Primary -. "Syncs Data" .-> Sec2
+    end
 
+    classDef primary fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef secondary fill:#e8f5e9,stroke:#43a047,color:#000,stroke-width:2px;
+```
 
 ## ⭐ Part 2: The Load Balancer & The Traffic Cops [Basic Interview Focus]
 If you have five servers in a cluster, how does a user's phone know which one to talk to? It doesn't. The traffic is managed by routing layers.
@@ -46,7 +60,33 @@ It's critical to understand the separation between the Application Tier and the 
 
    * **Method B (Smart Database Proxy):** The App Server just sends all queries to a single endpoint: a **Database Proxy** (like ProxySQL). The proxy sits in front of the database cluster, parses the SQL in real-time, and automatically routes `UPDATE`/`INSERT` commands to the Primary and `SELECT` commands to the Secondaries.
 
-
+```mermaid
+flowchart TD
+    User["User (Browser)"] --> ALB["App Load Balancer"]
+    ALB --> App1["App Server 1 (Stateless)"]
+    ALB --> App2["App Server 2 (Stateless)"]
+    
+    App1 --> DBProxy["Database Proxy / DB Load Balancer"]
+    App2 --> DBProxy
+    
+    subgraph Database_Cluster [Database Cluster]
+        direction TB
+        DBProxy -- "Writes (UPDATE/INSERT)" --> Primary["Primary Node (Read/Write)"]
+        DBProxy -- "Reads (SELECT)" --> Sec1["Secondary Node (Read Only)"]
+        DBProxy -- "Reads (SELECT)" --> Sec2["Secondary Node (Read Only)"]
+    end
+    
+    %% Styles
+    classDef default fill:#fafafa,stroke:#e0e0e0,color:#333
+    classDef root fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef intermediate fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
+    classDef leaf fill:#e8f5e9,stroke:#43a047,color:#000,stroke-width:2px;
+    classDef storage fill:#fff3e0,stroke:#fb8c00,color:#000,stroke-width:2px;
+    
+    class User root;
+    class ALB,App1,App2 intermediate;
+    class DBProxy,Primary,Sec1,Sec2 leaf;
+```
 
 ## Part 3: Keeping Data Synced (Replication)
 When the Primary node receives a new piece of data, it must inform the Secondary nodes. Every action the Primary takes is written to a **Write-Ahead Log (WAL)** or Oplog. The Secondary nodes constantly read this log and apply the exact same actions to their own data.
@@ -130,7 +170,11 @@ A CDN is a globally distributed network of massive cache servers (Edge Nodes / P
 
 ### The Request Flow (Dynamic vs Static)
 
-
+```mermaid
+flowchart LR
+    User["User"] --> CDN["CDN Edge"]
+    CDN --> Origin["Origin"]
+```
 
 The secret to CDNs is that they do not cache everything. They strictly separate **Dynamic API Data** from **Static Assets**.
 
