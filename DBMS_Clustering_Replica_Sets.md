@@ -29,9 +29,9 @@ In a standard replica set, nodes are given specific roles:
 flowchart TD
     subgraph Cluster [Database Replica Set]
         direction TB
-        Primary["⭐ Primary Node\n(Receives Writes)"]:::primary
-        Sec1["Secondary Node\n(Receives Reads)"]:::secondary
-        Sec2["Secondary Node\n(Receives Reads)"]:::secondary
+        Primary[("⭐ Primary Node\n(Receives Writes)\n[Exact DB Copy]")]:::primary
+        Sec1[("Secondary Node\n(Receives Reads)\n[Exact DB Copy]")]:::secondary
+        Sec2[("Secondary Node\n(Receives Reads)\n[Exact DB Copy]")]:::secondary
         
         Primary -. "Syncs Data" .-> Sec1
         Primary -. "Syncs Data" .-> Sec2
