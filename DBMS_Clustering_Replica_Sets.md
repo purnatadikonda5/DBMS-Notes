@@ -57,7 +57,32 @@ It's critical to understand the separation between the Application Tier and the 
 2. **The Database Routing (Two Methods):**
    * **Method A (Smart Database Driver):** The Application Server code uses an internal driver that maintains two separate connection pools: one specifically pointing to the Primary node for Writes, and one pointing to a DB Load Balancer for Reads.
 
-
+```mermaid
+flowchart TD
+    App["Application Server\n(with Smart DB Driver)"]
+    
+    subgraph Connection_Pools [Driver Connection Pools]
+        direction LR
+        WritePool["Write Connection Pool"]
+        ReadPool["Read Connection Pool"]
+    end
+    
+    App --> WritePool
+    App --> ReadPool
+    
+    WritePool -- "Direct Route" --> Primary["Primary Node"]:::primary
+    ReadPool -- "Distributes load" --> DBLB["DB Load Balancer"]:::lb
+    
+    DBLB --> Sec1["Secondary Node"]:::secondary
+    DBLB --> Sec2["Secondary Node"]:::secondary
+    
+    classDef primary fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef secondary fill:#e8f5e9,stroke:#43a047,color:#000,stroke-width:2px;
+    classDef lb fill:#fff3e0,stroke:#fb8c00,color:#000,stroke-width:2px;
+    class Primary primary
+    class Sec1,Sec2 secondary
+    class DBLB lb
+```
    * **Method B (Smart Database Proxy):** The App Server just sends all queries to a single endpoint: a **Database Proxy** (like ProxySQL). The proxy sits in front of the database cluster, parses the SQL in real-time, and automatically routes `UPDATE`/`INSERT` commands to the Primary and `SELECT` commands to the Secondaries.
 
 ```mermaid
