@@ -153,7 +153,26 @@ Systems use a blazing fast in-memory cache like **Redis**.
 > [!IMPORTANT]
 > Alternatively, a **Smart Database Proxy** can do this entirely on its own by intercepting the SQL, logging recently modified User IDs in its own memory, and overriding its load-balancing rules for those IDs for a few seconds.
 
-
+```mermaid
+flowchart TD
+    App["Application Server"] --> Proxy["Smart Database Proxy\n(e.g., ProxySQL)"]:::proxy
+    
+    subgraph Proxy_Internal [Inside the Proxy]
+        direction LR
+        SQLParser["SQL Parser"]
+        ProxyCache[("Internal Cache\n(Recent Writers)")]
+        Proxy --> SQLParser
+        SQLParser <--> ProxyCache
+    end
+    
+    SQLParser -- "Recent writer OR Write query" --> Primary["Primary Node"]:::primary
+    SQLParser -- "Normal Read query" --> Sec1["Secondary Node"]:::secondary
+    SQLParser -- "Normal Read query" --> Sec2["Secondary Node"]:::secondary
+    
+    classDef primary fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef secondary fill:#e8f5e9,stroke:#43a047,color:#000,stroke-width:2px;
+    classDef proxy fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
+```
 
 ## Part 5: Multi-Primary Clusters & Conflict Resolution
 In massive global systems (like Amazon or Google), relying on a single Primary node is too slow. They use a **Multi-Primary (Active-Active)** setup where multiple servers can accept writes simultaneously.
