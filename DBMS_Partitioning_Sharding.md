@@ -8,10 +8,11 @@ Welcome to the masterclass on database partitioning and sharding. This guide wil
 
 Imagine you have a massive, incredibly heavy textbook. Instead of carrying the entire book just to read one specific chapter, you separate it into smaller, individual booklets. 
 
-That is exactly what **Partitioning** is. It is the technique of dividing a large database—along with its indexes and metrics—into smaller, manageable slices of data. 
+That is exactly what **Partitioning** is. It is the technique of breaking a large database table into smaller, manageable slices of data. 
 
-> [!IMPORTANT]
-> **The Single Machine Rule:** In standard partitioning, even though the data is logically split into smaller chunks, **all of those chunks still physically live on the exact same computer (server)**. You are simply organizing the hard drive better so the local CPU can process queries faster without scanning the entire giant database.
+**Crucially:** If we break the table and all of those smaller slices still reside on a *single physical machine*, it is called normal **Partitioning**. However, if those slices are spread over *multiple different servers*, then it is called **Sharding**. 
+
+
 
 ### When Do We Apply Partitioning?
 You don't need to partition every database. We introduce this technique under two specific conditions:
@@ -22,7 +23,7 @@ You don't need to partition every database. We introduce this technique under tw
 * **Performance & Parallelism:** Multiple read/write operations can happen simultaneously across different partitions.
 * **Availability:** If one partition is corrupted or goes down, the rest of the database remains accessible.
 * **Manageability:** Smaller chunks of data are vastly easier to backup, restore, and maintain.
-* **Cost Reduction:** Scaling up a single, massive supercomputer (vertical scaling) is astronomically expensive. Partitioning allows you to use cheaper, standard servers.
+* **Cost Reduction:** Partitioning reduces the load on a single machine, potentially delaying or avoiding expensive hardware upgrades.
 
 </details>
 
@@ -91,7 +92,56 @@ flowchart TD
 
 </details>
 
-## Part 4: Challenge 1 - The Scatter-Gather Problem
+## Part 4: The Routing Layer Deep Dive (Smart Proxies)
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
+In enterprise systems, the Routing Layer is not just a simple mathematical formula hidden in the application code. It is a highly complex, dedicated infrastructure tier made up of **Database Proxy Servers** (like Vitess or ProxySQL).
+
+### How the Real-World Routing Layer Works
+* **The Internal Load Balancer:** Just like application servers, a single routing proxy would crash under massive traffic. To handle millions of database requests, we need **many** proxy servers running simultaneously. Because we have a large group of proxies, an internal Database Load Balancer is placed in front of them to distribute the incoming queries evenly across the entire fleet.
+* **Stateless & RAM-Based Mapping:** Proxy servers do not store any actual database rows. They are entirely *stateless*. They only hold the **Mapping Dictionary** (the rules of which Shard holds what data) loaded directly into their fast RAM.
+* **Fault Tolerance:** Because proxies are stateless, if one crashes, the Load Balancer instantly detects it and routes traffic to the surviving proxies. No data is lost, and a new proxy can be booted up in seconds.
+* **In-Memory Operations:** The most powerful feature of a Smart Proxy is how it handles cross-shard queries. If you request data that spans across multiple shards, the proxy scatters the queries, pulls the partial data from the shards into its *own* RAM, mathematically merges/joins the data together, and returns a single, unified response to the application.
+
+```mermaid
+flowchart TD
+    App["💻 Application Server"] --> DBLB
+    
+    subgraph Routing_Layer ["⚙️ The Routing Layer"]
+        direction TB
+        DBLB{"⚖️ Internal DB Load Balancer"}
+        Proxy1["🖥️ Smart Proxy A\n(Map in RAM)"]:::proxy
+        Proxy2["🖥️ Smart Proxy B\n(Map in RAM)"]:::proxy
+        Proxy3["🖥️ Smart Proxy C\n(Map in RAM)"]:::proxy
+        
+        DBLB --> Proxy1
+        DBLB --> Proxy2
+        DBLB --> Proxy3
+    end
+    
+    subgraph Shards ["🗄️ The Database Shards"]
+        direction LR
+        Shard1[("Shard 1\n(Rows 1-10k)")]:::shard
+        Shard2[("Shard 2\n(Rows 10k-20k)")]:::shard
+        Shard3[("Shard 3\n(Rows 20k-30k)")]:::shard
+    end
+    
+    Proxy1 == "Scatters Query" ==> Shard1 & Shard2
+    Shard1 -. "Returns Partial Data" .-> Proxy1
+    Shard2 -. "Returns Partial Data" .-> Proxy1
+    
+    Note["Proxy A computes the Join\nin its own RAM and\nreturns the unified result"]:::note
+    Proxy1 -.- Note
+    
+    classDef proxy fill:#fff3e0,stroke:#fb8c00,color:#000,stroke-width:2px;
+    classDef shard fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
+    classDef note fill:#fff9c4,stroke:#fbc02d,color:#000;
+```
+
+</details>
+
+## Part 5: Challenge 1 - The Scatter-Gather Problem
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
@@ -136,7 +186,7 @@ flowchart TD
 
 </details>
 
-## Part 5: Challenge 2 - Data Skew & Hotspots
+## Part 6: Challenge 2 - Data Skew & Hotspots
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
@@ -153,7 +203,7 @@ That one server crashes from overload (a **Hotspot**), while the other shards si
 
 </details>
 
-## Part 6: Challenge 3 - The Distributed Join
+## Part 7: Challenge 3 - The Distributed Join
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
@@ -173,7 +223,7 @@ We stop joining entirely. Instead of keeping a separate `Address` table, we dupl
 
 </details>
 
-## Part 7: Challenge 4 - Distributed Transactions
+## Part 8: Challenge 4 - Distributed Transactions
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
