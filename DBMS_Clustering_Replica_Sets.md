@@ -208,30 +208,20 @@ flowchart TD
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
-Up to this point, we have assumed a Master-Slave design where only ONE node accepts writes. 
-But what if we want to allow writes everywhere?
+Up to this point, we have assumed a Master-Slave design. But what if we want to allow writes everywhere?
 
-### What is a Multi-Primary Cluster?
-In a Multi-Primary (or Multi-Master) architecture, **every node has an equal position**. Every single node in the cluster can accept reads, and every single node can accept writes. There is no single "boss" node.
+### 1. Introduction: What is a Multi-Primary Cluster?
+* **Equal Standing:** There is no "boss" node. Every single node in the cluster has an absolutely equal position.
+* **Full Access:** Every node can accept both reads and writes directly from users.
+* **The Conflict Problem:** Because anyone can write, if a user in Tokyo and a user in New York update the *exact same row* at the *exact same millisecond*, it creates a severe data conflict.
 
-While this sounds great for accepting data globally (e.g., users in Tokyo write to the Tokyo node, users in New York write to the NY node), it introduces the most dangerous problem in distributed databases: **The Conflict**.
-What happens if two users try to update the *exact same row* on two different servers at the *exact same millisecond*?
-
-To maintain consistency and prevent database corruption, Multi-Primary architectures rely on strict conflict resolution strategies. 
-
-### Strategy A: Quorum Voting & Row-Level Locks (The Standard Method)
-This is the main strategy used by companies to enforce strict consistency across equal nodes. 
-
-If a node wants to write a piece of data (a single row), it must first run a democratic election:
-1. **Broadcast:** The node broadcasts a message: *"Hey, I am locking Row X for a write operation."*
-2. **Quorum (Majority):** The node waits for a **majority** of the other nodes to respond and accept the lock.
-3. **Write & Release:** Once it gets the majority vote, it executes the write and then releases the lock.
-
-**Why this is mathematically bulletproof:**
-It is mathematically impossible for two conflicting writes to both get a majority vote at the exact same time. If there are 5 nodes, you need 3 votes. You cannot have two different nodes both getting 3 votes. One will win, and the other will have to wait, preventing any data inconsistency!
-
-**What about Reads? (Eventual Consistency)**
-Even while a row is temporarily locked for a write, the other nodes can still process *read* requests for that row. They will simply return the older version of the data until the lock is released and the new data syncs over. This guarantees high availability through **Eventual Consistency**.
+### 2. Strategy A: Quorum Voting & Row-Level Locks (The Standard Method)
+To prevent conflicts, nodes use a democratic voting system before they are allowed to write:
+* **The Broadcast:** A node announces to the cluster, *"I need to lock Row X for a write operation."*
+* **The Quorum (Majority):** The node must wait until it receives a **majority** of "Yes" votes from the other nodes.
+* **Write & Release:** Once it secures the majority, it writes the row and immediately releases the lock.
+* **The Mathematical Guarantee:** It is mathematically impossible for two conflicting writes to both get a majority at the exact same time (e.g., out of 5 nodes, two different nodes cannot both get 3 votes). 
+* **Eventual Consistency (Reads):** Even while a row is locked, other nodes can still process *read* requests. They simply return the older version of the data until the lock is released and the new data syncs over. 
 
 ```mermaid
 flowchart TD
@@ -263,12 +253,14 @@ flowchart TD
     classDef note fill:#fff9c4,stroke:#fbc02d,color:#000;
 ```
 
-### Why Most Companies Still Use Single-Primary
-While you *can* use strict sync methods (waiting for 100% acceptance from all nodes instead of a majority) or complex quorum voting, these mechanisms require a massive amount of network calls for every single write. It is highly complex and introduces network latency. 
-Because of this complexity, **the majority of big companies prefer to just stick to a Single-Primary (Master-Slave) architecture** for their databases.
+### 3. Why Most Companies Still Use Single-Primary
+* **Network Complexity:** Quorum voting (or waiting for 100% sync acceptance from all nodes) requires a massive amount of constant network chatter.
+* **Latency:** Forcing the system to wait for votes drastically slows down write speeds.
+* **The Industry Reality:** Because of this intense complexity and latency, the majority of big companies prefer to avoid Multi-Primary entirely, sticking to a simpler **Single-Primary (Master-Slave)** architecture.
 
-### Strategy B: CRDTs and Vector Clocks (Conflict-Free Replicated Data Types)
-As a secondary strategy or fallback, some databases allow writes to happen immediately without locking, and resolve the conflicts mathematically after the fact using CRDTs or Vector Clocks. These algorithms look at the timestamps and operation history to automatically merge conflicting changes (like how Google Docs allows two people to edit a sentence at the same time).
+### 4. Strategy B: CRDTs and Vector Clocks (The Fallback Method)
+* **Conflict-Free Replicated Data Types (CRDTs):** A secondary strategy where writes happen instantly without any locks.
+* **Mathematical Merging:** Instead of preventing the conflict, algorithms look at timestamps and operation history to automatically merge conflicting changes after the fact (similar to two people typing in a Google Doc simultaneously).
 
 </details>
 
