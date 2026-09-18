@@ -148,7 +148,17 @@ Systems use a blazing fast in-memory cache like **Redis**.
    * If Redis returns `TRUE` (within 5 seconds), the App Server routes your read strictly to the Primary Node. You see your updated data.
    * If Redis returns `NULL` (after 5 seconds), the App Server confidently routes your read to the Secondary Node.
 
-*Flowchart placeholder*
+```mermaid
+flowchart TD
+    User["User Request"] --> App["Application Server"]
+    App -- "Checks Cache" --> Redis[("Redis Cache\n(5 Second Timer)")]
+    
+    Redis -- "All Writes & Reads < 5s\n(Timer Active)" --> Primary["Primary Node\n(Fresh Data)"]:::primary
+    Redis -- "Reads > 5s\n(Timer Expired)" --> Secondary["Secondary Node\n(Replicated Data)"]:::secondary
+    
+    classDef primary fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef secondary fill:#e8f5e9,stroke:#43a047,color:#000,stroke-width:2px;
+```
 
 > [!IMPORTANT]
 > Alternatively, a **Smart Database Proxy** can do this entirely on its own by intercepting the SQL, logging recently modified User IDs in its own memory, and overriding its load-balancing rules for those IDs for a few seconds.
