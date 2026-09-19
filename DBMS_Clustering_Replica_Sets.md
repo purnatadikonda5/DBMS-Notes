@@ -189,12 +189,23 @@ In massive global systems (like Amazon or Google), relying on a single Primary n
 
 But what if a user in India and a user in the US update the exact same data simultaneously on two different Primary nodes?
 
-### 1. Relative Writes vs Absolute Writes
-Last write wins is bad. Use CRDTs.
-### 2. Vector Clocks
-Use vector clocks to track history.
-### 3. Fallbacks
-Prompt the user.
+### 1. The Multi-Primary Conflict Problem
+If a user in India and a user in the US update the exact same data simultaneously on two different Primary nodes, you get a conflict. Simple rules like **Last Write Wins (LWW)** are dangerous here because one user's update is entirely lost.
+
+To solve this, databases use two different strategies depending on how critical the data is:
+
+### 2. Strategy A: Vector Clocks & CRDTs (Eventual Consistency)
+For non-critical or mergeable data (like a YouTube "like" counter or Google Docs), databases allow the conflict to happen and resolve it after the fact.
+* **Vector Clocks (The Detector):** Because server clocks aren't perfectly synced, databases use an array tracking the history of changes (e.g., `[India_Updates: 1, US_Updates: 1]`). If the database detects a "Branch", it knows a simultaneous edit occurred.
+* **CRDTs (The Resolver):** Conflict-free Replicated Data Types automatically merge the math. Instead of sending the final state (`11`), the nodes send the operation (`INCREMENT BY 1`), resulting in `12`. 
+* **Fallback:** If it cannot be merged by math, it prompts the user (e.g., "Merge Conflict" in Git).
+
+### 3. Strategy B: Global Locks / Two-Phase Commit (Strict Consistency)
+For critical data where conflicts are unacceptable (like reserving the last flight seat), relying on CRDTs isn't enough. Modern global databases (like Google Spanner) solve this using **Distributed Global Locks** (Two-Phase Commit).
+* Before the India node executes a write, it sends a global lock request to the other primary nodes.
+* It waits until it receives acknowledgements confirming the row is locked.
+* While locked, if the US user tries to book the seat, the US node tells them to wait.
+* Once the India node writes the data, it releases the lock. This perfectly prevents conflicts before they even happen.
 
 ## Part 6: Coordinators & Distributed Deadlocks
 To prevent conflicts on absolutely critical data (like booking a flight seat), databases use **Distributed Locks**. But if Node A locks and asks B, and Node B locks and asks A, you get a **Distributed Deadlock** and the system freezes.
