@@ -222,6 +222,7 @@ Enterprise systems use a specialized micro-cluster (the Coordinator) as the sing
 * Nodes ask the Coordinator to create a lock file (`CREATE FILE: /locks/User_123`).
 * Because the Coordinator executes atomically, it is physically impossible for two nodes to create the file simultaneously. The first one gets the lock; the second gets a "File exists" error and must wait.
 * **Ephemeral Keys (Leases):** The lock is tied to a heartbeat. If the node holding the lock dies, the Coordinator deletes the lock after a few seconds so the system doesn't freeze permanently.
+* **The Magic of the Majority:** Ultimately, the Coordinator is just a voting system. If a lock request gets a majority of votes from the internal Coordinator nodes, the action is performed. Because there can mathematically only be *one* majority in an odd-numbered cluster, any competing request instantly fails to get enough votes and is forced to wait.
 
 **Method 2: Timestamp Tie-Breakers (Peer-to-Peer)**
 Nodes stamp transactions with precise timestamps. If a deadlock occurs, algorithms like **Wait-Die** kick in:
