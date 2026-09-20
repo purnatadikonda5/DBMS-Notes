@@ -237,9 +237,44 @@ A CDN is a globally distributed network of massive cache servers (Edge Nodes / P
 ### The Request Flow (Dynamic vs Static)
 
 ```mermaid
-flowchart LR
-    User["User"] --> CDN["CDN Edge"]
-    CDN --> Origin["Origin"]
+flowchart TD
+    User["👨‍💻 User\n(India)"]
+    
+    subgraph CDN_Layer [🌍 Global CDN Layer - Edge Nodes]
+        direction LR
+        Mumbai["📍 Edge Node\n(Mumbai)"]:::edge
+        Tokyo["📍 Edge Node\n(Tokyo)"]:::edge
+        London["📍 Edge Node\n(London)"]:::edge
+    end
+
+    subgraph Origin_Layer [🏢 Origin Data Center - USA]
+        direction TB
+        App["⚙️ Application Server\n(API Logic)"]:::backend
+        DB[("🗄️ Database\n(Dynamic JSON)")]:::database
+        S3[("🖼️ Object Storage\n(Static Files)")]:::storage
+        
+        App <--> DB
+    end
+
+    User -->|DNS routes to nearest PoP| Mumbai
+
+    %% Path 1: Dynamic Data
+    Mumbai -. "1. API Request (GET /api/user)\n⚠️ Bypasses Cache" .-> App
+    App -. "Returns JSON" .-> Mumbai
+
+    %% Path 2: Static Data
+    Mumbai == "2. Image Request (GET /logo.png)" ==> CacheCheck{"Has File?"}
+    
+    CacheCheck -- "✅ YES (Cache Hit)" --> Mumbai
+    CacheCheck -- "❌ NO (Cache Miss)" --> S3
+    S3 -- "Returns Image" --> Mumbai
+    
+    Mumbai -- "Delivers Response to User" --> User
+    
+    classDef edge fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
+    classDef backend fill:#fff3e0,stroke:#fb8c00,color:#000,stroke-width:2px;
+    classDef database fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef storage fill:#e8f5e9,stroke:#43a047,color:#000,stroke-width:2px;
 ```
 
 The secret to CDNs is that they do not cache everything. They strictly separate **Dynamic API Data** from **Static Assets**.
