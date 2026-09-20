@@ -279,7 +279,19 @@ flowchart TD
 
 The secret to CDNs is that they do not cache everything. They strictly separate **Dynamic API Data** from **Static Assets**.
 
-When a user asks for a file, it checks the CDN. If it's a hit, it serves. If miss, it fetches from origin.
+Here is the exact step-by-step flow of how the CDN handles a user loading their profile:
+
+**Path 1: Fetching the Data (The API Call)**
+1. The user's browser requests their profile data (`GET /api/user`).
+2. The request hits the nearest **CDN Edge Node (Mumbai)**.
+3. Because it is an `/api/` route, the CDN knows this is dynamic data. It **bypasses the cache** and forwards the request across the ocean.
+4. The **Application Server (USA)** processes the logic, queries the **Database**, and sends back a lightweight JSON response: `{"name": "John", "image": "/img/user123.jpg"}`.
+
+**Path 2: Fetching the Image (The Static Asset)**
+1. The browser reads the JSON and realizes it needs to display an image. It makes a second request: `GET /img/user123.jpg`.
+2. This request hits the **Mumbai CDN** again. Because it's an image file, the CDN looks inside its local cache.
+3. **If Cache Hit:** The CDN already has the image in memory. It sends it back to the user instantly. The USA server does zero work.
+4. **If Cache Miss:** The CDN does not have it. It fetches the image from the **USA Object Storage (S3)**, saves a copy locally in Mumbai for the next person, and sends it to the user.
 
 > [!IMPORTANT]
 > By offloading 90% of the heavy static traffic (images, videos, CSS) to the CDN, your Origin Database is protected from crashing during massive traffic spikes.
