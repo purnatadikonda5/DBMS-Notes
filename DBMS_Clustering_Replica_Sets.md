@@ -9,6 +9,9 @@ By the end of this masterclass, you will understand exactly how modern databases
 ---
 
 ## ⭐ Part 1: The Basics (Clusters vs. Replica Sets) [Basic Interview Focus]
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 While the terms are often used interchangeably, they have distinct roles in system design.
 
 > [!NOTE]
@@ -41,7 +44,12 @@ flowchart TD
     classDef secondary fill:#e8f5e9,stroke:#43a047,color:#000,stroke-width:2px;
 ```
 
+</details>
+
 ## ⭐ Part 2: The Load Balancer & The Traffic Cops [Basic Interview Focus]
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 If you have five servers in a cluster, how does a user's phone know which one to talk to? It doesn't. The traffic is managed by routing layers.
 
 It's critical to understand the separation between the Application Tier and the Database Tier.
@@ -113,7 +121,12 @@ flowchart TD
     class DBProxy,Primary,Sec1,Sec2 leaf;
 ```
 
+</details>
+
 ## Part 3: Keeping Data Synced (Replication)
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 When the Primary node receives a new piece of data, it must inform the Secondary nodes. Every action the Primary takes is written to a **Write-Ahead Log (WAL)** or Oplog. The Secondary nodes constantly read this log and apply the exact same actions to their own data.
 
 This sync happens in one of two ways:
@@ -128,7 +141,12 @@ The Primary gets the data, immediately tells the user "Success!", and then sends
 * **Pros:** Lightning fast.
 * **Cons:** Replication Lag. For a few milliseconds, the Secondaries are out of date (serving stale data).
 
+</details>
+
 ## Part 4: Solving the "Stale Read" Problem
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 In asynchronous replication, if you update your profile picture (Write to Primary) and immediately refresh the page (Read from Secondary), you might see your old picture because the Secondary hasn't synced yet. 
 
 To fix this, systems use **Read-After-Write Consistency**. The system "remembers" that you just made an edit and actively routes your subsequent reads to the Primary node for a few seconds.
@@ -184,7 +202,12 @@ flowchart TD
     classDef proxy fill:#e3f2fd,stroke:#1e88e5,color:#000,stroke-width:2px;
 ```
 
+</details>
+
 ## Part 5: Multi-Primary Clusters & Conflict Resolution
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 In massive global systems (like Amazon or Google), relying on a single Primary node is too slow. They use a **Multi-Primary (Active-Active)** setup where multiple servers can accept writes simultaneously.
 
 But what if a user in India and a user in the US update the exact same data simultaneously on two different Primary nodes?
@@ -207,7 +230,12 @@ For critical data where conflicts are unacceptable (like reserving the last flig
 * While locked, if the US user tries to book the seat, the US node tells them to wait.
 * Once the India node writes the data, it releases the lock. This perfectly prevents conflicts before they even happen.
 
+</details>
+
 ## Part 6: Coordinators & Distributed Deadlocks
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 To prevent conflicts on absolutely critical data (like booking a flight seat), databases use **Distributed Locks**. But if Node A locks and asks B, and Node B locks and asks A, you get a **Distributed Deadlock** and the system freezes.
 
 > [!WARNING]
@@ -229,7 +257,12 @@ Nodes stamp transactions with precise timestamps. If a deadlock occurs, algorith
 * If an *older* transaction needs a lock held by a *younger* one, it is allowed to wait.
 * If a *younger* transaction needs a lock held by an *older* one, the younger one must die (abort and retry).
 
+</details>
+
 ## Part 7: The Global Edge (Content Delivery Networks)
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 CDNs solve the one problem your database cluster cannot fix: the speed of light. 
 
 A CDN is a globally distributed network of massive cache servers (Edge Nodes / PoPs) located geographically close to the users.
@@ -304,7 +337,12 @@ If you update a logo, how do you force the CDN to drop the old one?
 
 
 
+</details>
+
 ## Appendix: One-Line Definitions to Remember
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 | Term | Definition |
 | :--- | :--- |
 | **Cluster** | Interconnected servers acting as a single system. |
@@ -321,3 +359,5 @@ If you update a logo, how do you force the CDN to drop the old one?
 | **CDN (Edge Node)** | A global network of cache servers physically close to users. |
 | **Origin Server** | Your actual backend and database servers acting as the single source of truth. |
 | **Cache Busting** | Forcing a CDN to fetch fresh data by changing the filename (versioning). |
+
+</details>
