@@ -181,3 +181,86 @@ flowchart TD
 
 ---
 
+## Part 4: Step-by-Step Insertion 
+*(See [this video](INSERT_VIDEO_LINK_HERE) for more clarity on this specific example)*
+
+Let's watch both the B+ Tree and the Data Pages react as we insert our data: `19, 25, 30, 17, 6`.
+Assume our B+ Tree has an **Order of 3**, meaning the **Maximum Keys per node is 2**.
+
+### Step 1: Insert 19
+* **B+ Tree:** A root node is created containing `[19]`.
+* **Storage:** The record is assigned to `DataPage1`. The Storage Manager maps `DataPage1` to `DataBlock1`.
+
+```mermaid
+flowchart LR
+    Tree["B+ Tree\n[ 19 ]"] -.-> Data["DataPage 1\nRecords: 19"]
+```
+
+### Step 2: Insert 25
+* **B+ Tree:** The root node has space (max keys is 2), so it becomes `[19, 25]`.
+* **Storage:** Both records can currently fit in the same data page in this example. `DataPage1` holds both.
+
+```mermaid
+flowchart LR
+    Tree["B+ Tree\n[ 19 | 25 ]"] -.-> Data["DataPage 1\nRecords: 19, 25"]
+```
+
+### Step 3: Insert 30 (The B+ Tree Split!)
+* **B+ Tree:** We try to insert 30, making the node `[19, 25, 30]`. But our maximum is 2! The node overflows and must **split**. 
+  * *How the split happens:* We pick the middle number (`25`) and push it *up* to create a new Parent node (a guidepost). 
+  * The number smaller than 25 (`19`) stays in the Left Leaf. 
+  * The numbers 25 and greater (`25, 30`) go to the Right Leaf.
+* **Storage:** The record `30` is added to `DataPage1`, making `DataPage1` **completely full** in our storage example.
+
+```mermaid
+flowchart TD
+    Parent["Level 1 (Internal Node)\n[ 25 ]"]
+    
+    Left["Level 2 (Leaf Node)\n[ 19 ]"]
+    Right["Level 2 (Leaf Node)\n[ 25 | 30 ]"]
+    
+    %% Force horizontal alignment
+    Left ~~~ Right
+    
+    Parent --> Left
+    Parent --> Right
+    
+    DP1["Storage: DataPage 1\nRecords: 19, 25, 30\n(PAGE IS FULL)"]
+    
+    Left -.-> DP1
+    Right -.-> DP1
+```
+
+### Step 4: Insert 17 (The Data Page Split!)
+We want to insert `17`. 
+* **B+ Tree Route:** Because `17 < 25`, the B+ tree routes us to the left side.
+* **The Storage Problem:** The DBMS checks the neighboring data location and finds that `DataPage1` is full. The DBMS cannot put another record into an already-full page.
+* **The Solution (Page Split):** A new Data Page is created. The records are redistributed.
+
+```mermaid
+flowchart TD
+    Parent["Level 1 (Internal Node)\n[ 25 ]"]
+    
+    Left["Level 2 (Leaf Node)\n[ 17 | 19 ]"]
+    Right["Level 2 (Leaf Node)\n[ 25 | 30 ]"]
+    
+    %% Force horizontal alignment
+    Left ~~~ Right
+    
+    Parent --> Left
+    Parent --> Right
+    
+    DP1["Storage: DataPage 1\nRecords: 17, 19, 25"]
+    DP2["Storage: DataPage 2\nRecords: 30"]
+    
+    Left -.-> DP1
+    Right -.-> DP2
+    
+    DP1 -.-> SM["Storage Manager creates new Block for DP2"]
+    DP2 -.-> SM
+```
+
+This proves a subtle but important point: **Do not think "One B+ Tree node always equals one actual table/data page."** They are two different things serving different purposes.
+
+---
+
