@@ -377,3 +377,85 @@ For learning purposes, visualizing Dense and Sparse indexes as flat "tables" is 
 
 ---
 
+## Part 6: The Complete Mental Model
+
+If you take away nothing else, remember this complete picture:
+
+```mermaid
+flowchart TD
+    %% Root Level
+    Root["Root Node\n[ P1 | Key: 50 | P2 | Key: 100 | P3 ]"]
+    
+    %% Intermediate Level
+    Int1["Intermediate Node\n[ P1 | Key: 25 | P2 ]"]
+    Int2["Intermediate Node\n[ P1 | Key: 75 | P2 ]"]
+    Int3["Intermediate Node\n[ P1 | Key: 150 | P2 ]"]
+    
+    %% Force Intermediate Nodes into a single horizontal row
+    Int1 ~~~ Int2 ~~~ Int3
+    
+    %% Leaf Level
+    Leaf1["Leaf Node\n[ Key: 10 | DataRef ] [ Key: 19 | DataRef ]"]
+    Leaf2["Leaf Node\n[ Key: 30 | DataRef ] [ Key: 45 | DataRef ]"]
+    Leaf3["Leaf Node\n[ Key: 60 | DataRef ] [ Key: 70 | DataRef ]"]
+    Leaf4["Leaf Node\n[ Key: 80 | DataRef ] [ Key: 90 | DataRef ]"]
+    Leaf5["Leaf Node\n[ Key: 120 | DataRef ] [ Key: 140 | DataRef ]"]
+    
+    %% Force Leaf Nodes into a single horizontal row
+    Leaf1 ~~~ Leaf2 ~~~ Leaf3 ~~~ Leaf4 ~~~ Leaf5
+    
+    %% Tree Connections
+    Root -- "P1 (Key < 50)" --> Int1
+    Root -- "P2 (50 <= Key < 100)" --> Int2
+    Root -- "P3 (Key >= 100)" --> Int3
+    
+    Int1 -- "P1" --> Leaf1
+    Int1 -- "P2" --> Leaf2
+    
+    Int2 -- "P1" --> Leaf3
+    Int2 -- "P2" --> Leaf4
+    
+    Int3 -- "P1" --> Leaf5
+    
+    subgraph Logical_Storage [Data Pages (Logical Layer)]
+        direction LR
+        DP1["Data Page 1\nRecords (10, 19)"]
+        DP2["Data Page 2\nRecords (30, 45)"]
+    end
+    
+    subgraph Physical_Storage [Disk Blocks (Physical Layer)]
+        direction LR
+        SM["Storage Manager"]
+        DB1[("Disk Block A")]
+        DB2[("Disk Block B")]
+    end
+    
+    %% Data References pointing out of the tree
+    Leaf1 ===> DP1
+    Leaf2 ===> DP2
+    
+    %% Storage Manager Mapping
+    DP1 -.-> SM
+    DP2 -.-> SM
+    SM -.-> DB1
+    SM -.-> DB2
+```
+
+> [!IMPORTANT]
+> **Crucial Structural Rule of a B+ Tree:**
+> * **Root & Intermediate Nodes:** Contain ONLY Search Keys and Internal Pointers routing you downward. They **never** hold actual data references.
+> * **Leaf Nodes:** Contain the Search Keys and the actual **Data References** pointing out to the disk. They have no internal downward pointers because they are the bottom!
+
+### Final 5-Line Summary
+1. **Data** → stored logically in Data Pages, which are mapped to physical underlying persistent storage blocks by the Storage Manager.
+2. **Index** → an additional structure for faster searching without scanning every data page.
+3. **B+ Tree** → the balanced data structure used to organize the index so it remains short and efficient.
+4. **Internal B+ Tree Pointers** → point only to child *Index Pages*.
+5. **Leaf Entries** → hold the key + data reference `(Page, Slot)` leading directly to the actual *Data Page/Record*.
+
+---
+**You've made it!** 
+You now understand the complete story: A record is inserted ➔ The B+ Tree determines where it belongs ➔ The relevant Data Page is checked ➔ If space exists, it's inserted ➔ If the page is full, the Storage Manager splits the page ➔ The index structure is updated.
+
+---
+
