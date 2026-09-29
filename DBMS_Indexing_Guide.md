@@ -145,7 +145,6 @@ flowchart TD
     LNode2["Level 2 (Leaf Node)\nSearch Key: 30 | Data Ref"]
     
     %% Force horizontal alignment
-    LNode1 ~~~ LNode2
     
     DPage["Physical Storage\nData Page 1\nSlot 1: (19, A)\nSlot 2: (30, C)"]
     
@@ -220,7 +219,6 @@ flowchart TD
     Right["Level 2 (Leaf Node)\n[ 25 | 30 ]"]
     
     %% Force horizontal alignment
-    Left ~~~ Right
     
     Parent --> Left
     Parent --> Right
@@ -245,7 +243,6 @@ flowchart TD
     Right["Level 2 (Leaf Node)\n[ 25 | 30 ]"]
     
     %% Force horizontal alignment
-    Left ~~~ Right
     
     Parent --> Left
     Parent --> Right
@@ -392,7 +389,6 @@ flowchart TD
     Int3["Intermediate Node\n[ P1 | Key: 150 | P2 ]"]
     
     %% Force Intermediate Nodes into a single horizontal row
-    Int1 ~~~ Int2 ~~~ Int3
     
     %% Leaf Level
     Leaf1["Leaf Node\n[ Key: 10 | DataRef ] [ Key: 19 | DataRef ]"]
@@ -402,7 +398,6 @@ flowchart TD
     Leaf5["Leaf Node\n[ Key: 120 | DataRef ] [ Key: 140 | DataRef ]"]
     
     %% Force Leaf Nodes into a single horizontal row
-    Leaf1 ~~~ Leaf2 ~~~ Leaf3 ~~~ Leaf4 ~~~ Leaf5
     
     %% Tree Connections
     Root -- "P1 (Key < 50)" --> Int1
