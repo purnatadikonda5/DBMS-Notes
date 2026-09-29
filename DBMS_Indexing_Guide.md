@@ -417,13 +417,13 @@ flowchart TD
     
     Int3 -- "P1" --> Leaf5
     
-    subgraph Logical_Storage [Data Pages (Logical Layer)]
+    subgraph Logical_Storage
         direction LR
         DP1["Data Page 1\nRecords (10, 19)"]
         DP2["Data Page 2\nRecords (30, 45)"]
     end
     
-    subgraph Physical_Storage [Disk Blocks (Physical Layer)]
+    subgraph Physical_Storage
         direction LR
         SM["Storage Manager"]
         DB1[("Disk Block A")]
