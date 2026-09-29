@@ -459,3 +459,19 @@ You now understand the complete story: A record is inserted ➔ The B+ Tree dete
 
 ---
 
+## Appendix: One-Line Definitions to Remember
+
+| Term | Definition |
+| :--- | :--- |
+| **Index** | Extra structure used to speed up data retrieval |
+| **B+ Tree** | Data structure commonly used to implement an index |
+| **Index Node** | Logical node of the B+ tree |
+| **Index Page** | Page storing an index node/part of the B+ tree |
+| **Index File** | Persistent storage containing the index pages |
+| **Index Table** | Informal term for index entries/information |
+| **Data Page** | Page containing actual table rows |
+| **Data Reference** | Information used to locate the actual row |
+| **Internal Node** | Contains keys + pointers to child index pages |
+| **Leaf Node** | Contains search key + data reference |
+| **Disk Block** | Physical storage unit underneath the DBMS page layer |
+
