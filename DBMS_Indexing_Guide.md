@@ -65,7 +65,7 @@ Searching page after page requires massive physical Disk I/O, which is incredibl
 
 </details>
 
-## Part 2: The Solution (The Index)
+## ⭐ Part 2: The Solution (The Index) [Basic Interview Focus]
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
@@ -281,7 +281,7 @@ This proves a subtle but important point: **Do not think "One B+ Tree node alway
 
 </details>
 
-## Part 5: Deep Dive into Types of Indexes
+## ⭐ Part 5: Deep Dive into Types of Indexes [Basic Interview Focus]
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
