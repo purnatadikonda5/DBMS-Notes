@@ -7,7 +7,7 @@ By the end of this, you will understand not just the *what*, but the exact *how*
 ---
 
 <details>
-<summary><b>Click to expand: Part 1: How is Data Actually Stored?</b></summary>
+<summary><h2>Click to expand: Part 1: How is Data Actually Stored?</h2></summary>
 
 ## Part 1: How is Data Actually Stored?
 
@@ -66,7 +66,7 @@ Searching page after page requires massive physical Disk I/O, which is incredibl
 </details>
 
 <details>
-<summary><b>Click to expand: Part 2: The Solution (The Index)</b></summary>
+<summary><h2>Click to expand: Part 2: The Solution (The Index)</h2></summary>
 
 ## Part 2: The Solution (The Index)
 
@@ -110,7 +110,7 @@ flowchart TD
 </details>
 
 <details>
-<summary><b>Click to expand: Part 3: The Gap (Why exactly do we use a B+ Tree?)</b></summary>
+<summary><h2>Click to expand: Part 3: The Gap (Why exactly do we use a B+ Tree?)</h2></summary>
 
 ## Part 3: The Gap (Why exactly do we use a B+ Tree?)
 
@@ -196,7 +196,7 @@ flowchart TD
 </details>
 
 <details>
-<summary><b>Click to expand: Part 4: Step-by-Step Insertion</b></summary>
+<summary><h2>Click to expand: Part 4: Step-by-Step Insertion</h2></summary>
 
 ## Part 4: Step-by-Step Insertion 
 *(See [this video](INSERT_VIDEO_LINK_HERE) for more clarity on this specific example)*
@@ -282,7 +282,7 @@ This proves a subtle but important point: **Do not think "One B+ Tree node alway
 </details>
 
 <details>
-<summary><b>Click to expand: Part 5: Deep Dive into Types of Indexes</b></summary>
+<summary><h2>Click to expand: Part 5: Deep Dive into Types of Indexes</h2></summary>
 
 ## Part 5: Deep Dive into Types of Indexes
 
@@ -400,7 +400,7 @@ For learning purposes, visualizing Dense and Sparse indexes as flat "tables" is 
 </details>
 
 <details>
-<summary><b>Click to expand: Part 6: The Complete Mental Model</b></summary>
+<summary><h2>Click to expand: Part 6: The Complete Mental Model</h2></summary>
 
 ## Part 6: The Complete Mental Model
 
@@ -485,7 +485,7 @@ You now understand the complete story: A record is inserted ➔ The B+ Tree dete
 </details>
 
 <details>
-<summary><b>Click to expand: Appendix: One-Line Definitions to Remember</b></summary>
+<summary><h2>Click to expand: Appendix: One-Line Definitions to Remember</h2></summary>
 
 ## Appendix: One-Line Definitions to Remember
 
