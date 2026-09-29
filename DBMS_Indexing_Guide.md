@@ -6,6 +6,9 @@ By the end of this, you will understand not just the *what*, but the exact *how*
 
 ---
 
+<details>
+<summary><b>Click to expand: Part 1: How is Data Actually Stored?</b></summary>
+
 ## Part 1: How is Data Actually Stored?
 
 Before we talk about indexing, we must understand the physical reality of your data. 
@@ -60,6 +63,11 @@ Searching page after page requires massive physical Disk I/O, which is incredibl
 
 ---
 
+</details>
+
+<details>
+<summary><b>Click to expand: Part 2: The Solution (The Index)</b></summary>
+
 ## Part 2: The Solution (The Index)
 
 To avoid scanning every Data Page, we create an **Index**. 
@@ -98,6 +106,11 @@ flowchart TD
 ```
 
 ---
+
+</details>
+
+<details>
+<summary><b>Click to expand: Part 3: The Gap (Why exactly do we use a B+ Tree?)</b></summary>
 
 ## Part 3: The Gap (Why exactly do we use a B+ Tree?)
 
@@ -180,6 +193,11 @@ flowchart TD
 
 ---
 
+</details>
+
+<details>
+<summary><b>Click to expand: Part 4: Step-by-Step Insertion</b></summary>
+
 ## Part 4: Step-by-Step Insertion 
 *(See [this video](INSERT_VIDEO_LINK_HERE) for more clarity on this specific example)*
 
@@ -260,6 +278,11 @@ flowchart TD
 This proves a subtle but important point: **Do not think "One B+ Tree node always equals one actual table/data page."** They are two different things serving different purposes.
 
 ---
+
+</details>
+
+<details>
+<summary><b>Click to expand: Part 5: Deep Dive into Types of Indexes</b></summary>
 
 ## Part 5: Deep Dive into Types of Indexes
 
@@ -374,6 +397,11 @@ For learning purposes, visualizing Dense and Sparse indexes as flat "tables" is 
 
 ---
 
+</details>
+
+<details>
+<summary><b>Click to expand: Part 6: The Complete Mental Model</b></summary>
+
 ## Part 6: The Complete Mental Model
 
 If you take away nothing else, remember this complete picture:
@@ -454,6 +482,11 @@ You now understand the complete story: A record is inserted ➔ The B+ Tree dete
 
 ---
 
+</details>
+
+<details>
+<summary><b>Click to expand: Appendix: One-Line Definitions to Remember</b></summary>
+
 ## Appendix: One-Line Definitions to Remember
 
 | Term | Definition |
@@ -469,4 +502,6 @@ You now understand the complete story: A record is inserted ➔ The B+ Tree dete
 | **Internal Node** | Contains keys + pointers to child index pages |
 | **Leaf Node** | Contains search key + data reference |
 | **Disk Block** | Physical storage unit underneath the DBMS page layer |
+
+</details>
 
