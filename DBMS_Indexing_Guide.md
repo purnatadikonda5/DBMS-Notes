@@ -6,10 +6,10 @@ By the end of this, you will understand not just the *what*, but the exact *how*
 
 ---
 
-<details>
-<summary><h2>Click to expand: Part 1: How is Data Actually Stored?</h2></summary>
-
 ## Part 1: How is Data Actually Stored?
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 
 Before we talk about indexing, we must understand the physical reality of your data. 
 
@@ -65,10 +65,10 @@ Searching page after page requires massive physical Disk I/O, which is incredibl
 
 </details>
 
-<details>
-<summary><h2>Click to expand: Part 2: The Solution (The Index)</h2></summary>
-
 ## Part 2: The Solution (The Index)
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 
 To avoid scanning every Data Page, we create an **Index**. 
 
@@ -109,10 +109,10 @@ flowchart TD
 
 </details>
 
-<details>
-<summary><h2>Click to expand: Part 3: The Gap (Why exactly do we use a B+ Tree?)</h2></summary>
-
 ## Part 3: The Gap (Why exactly do we use a B+ Tree?)
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 
 If you have millions of rows, your index will have millions of entries (especially if it is a Dense Index). 
 
@@ -195,10 +195,10 @@ flowchart TD
 
 </details>
 
+## Part 4: Step-by-Step Insertion
 <details>
-<summary><h2>Click to expand: Part 4: Step-by-Step Insertion</h2></summary>
-
-## Part 4: Step-by-Step Insertion 
+<summary><b>📖 Click to read this section</b></summary>
+ 
 *(See [this video](INSERT_VIDEO_LINK_HERE) for more clarity on this specific example)*
 
 Let's watch both the B+ Tree and the Data Pages react as we insert our data: `19, 25, 30, 17, 6`.
@@ -281,10 +281,10 @@ This proves a subtle but important point: **Do not think "One B+ Tree node alway
 
 </details>
 
-<details>
-<summary><h2>Click to expand: Part 5: Deep Dive into Types of Indexes</h2></summary>
-
 ## Part 5: Deep Dive into Types of Indexes
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 
 We classify indexes based on **density** (how many entries) and **ordering** (how the data file is sorted). 
 Let's use a concrete example table: `Students (roll_no (PK), name, age)`. Assume the Data File is physically sorted by `roll_no`.
@@ -399,10 +399,10 @@ For learning purposes, visualizing Dense and Sparse indexes as flat "tables" is 
 
 </details>
 
-<details>
-<summary><h2>Click to expand: Part 6: The Complete Mental Model</h2></summary>
-
 ## Part 6: The Complete Mental Model
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 
 If you take away nothing else, remember this complete picture:
 
@@ -484,10 +484,10 @@ You now understand the complete story: A record is inserted ➔ The B+ Tree dete
 
 </details>
 
-<details>
-<summary><h2>Click to expand: Appendix: One-Line Definitions to Remember</h2></summary>
-
 ## Appendix: One-Line Definitions to Remember
+<details>
+<summary><b>📖 Click to read this section</b></summary>
+
 
 | Term | Definition |
 | :--- | :--- |
