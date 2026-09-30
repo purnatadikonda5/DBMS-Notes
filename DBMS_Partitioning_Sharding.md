@@ -115,12 +115,12 @@ Using a GSI avoids the Scatter-Gather disaster, but it forces a network double-h
 flowchart TD
     Router["⚙️ Routing Layer\\nQuery: WHERE id = 120"]
     
-    subgraph GSI [GSI Cluster (Sharded by ID)]
+    subgraph GSI [GSI Cluster - Sharded by ID]
         direction TB
         GSI_Node[("GSI Shard\\n(id: 120 -> dept: Sales)")]:::gsi
     end
     
-    subgraph Data [Data Cluster (Sharded by Department)]
+    subgraph Data [Data Cluster - Sharded by Department]
         direction TB
         Data_Node[("Data Shard 'Sales'\\n(Full Profile for ID 120)")]:::shard
     end
