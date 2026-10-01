@@ -24,9 +24,9 @@ A Database Cluster is a group of interconnected servers (nodes) that act as a si
 ### 2. Replica Set
 A Replica Set is a specific type of cluster where multiple nodes hold the exact same copy of your data. Its primary job is **High Availability**. If one server crashes, another immediately takes its place.
 
-In a standard replica set, nodes are given specific roles:
-* **Primary Node (Leader/Master):** The boss. It is usually the only node allowed to accept new data or changes (Writes).
-* **Secondary Nodes (Followers/Slaves):** These nodes maintain a strict copy of the Primary's data. They handle read requests (like "show me my profile") but cannot accept writes.
+In a standard replica set, nodes are given specific roles. This specific setup is famously known in database engineering as a **Master-Slave Architecture** (or Leader-Follower Architecture):
+* **Primary Node (Master/Leader):** The boss. It is usually the only node allowed to accept new data or changes (Writes).
+* **Secondary Nodes (Slaves/Followers):** These nodes maintain a strict copy of the Primary's data. They handle read requests (like "show me my profile") but cannot accept writes.
 
 ```mermaid
 flowchart TD
