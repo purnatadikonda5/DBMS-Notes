@@ -204,31 +204,71 @@ flowchart TD
 
 </details>
 
-## Part 5: Multi-Primary Clusters & Conflict Resolution
+## Part 5: Multi-Primary Clusters
 <details>
 <summary><b>📖 Click to read this section</b></summary>
 
-In massive global systems (like Amazon or Google), relying on a single Primary node is too slow. They use a **Multi-Primary (Active-Active)** setup where multiple servers can accept writes simultaneously.
+Up to this point, we have assumed a Master-Slave design where only ONE node accepts writes. 
+But what if we want to allow writes everywhere?
 
-But what if a user in India and a user in the US update the exact same data simultaneously on two different Primary nodes?
+### What is a Multi-Primary Cluster?
+In a Multi-Primary (or Multi-Master) architecture, **every node has an equal position**. Every single node in the cluster can accept reads, and every single node can accept writes. There is no single "boss" node.
 
-### 1. The Multi-Primary Conflict Problem
-If a user in India and a user in the US update the exact same data simultaneously on two different Primary nodes, you get a conflict. Simple rules like **Last Write Wins (LWW)** are dangerous here because one user's update is entirely lost.
+While this sounds great for accepting data globally (e.g., users in Tokyo write to the Tokyo node, users in New York write to the NY node), it introduces the most dangerous problem in distributed databases: **The Conflict**.
+What happens if two users try to update the *exact same row* on two different servers at the *exact same millisecond*?
 
-To solve this, databases use two different strategies depending on how critical the data is:
+To maintain consistency and prevent database corruption, Multi-Primary architectures rely on strict conflict resolution strategies. 
 
-### 2. Strategy A: Vector Clocks & CRDTs (Eventual Consistency)
-For non-critical or mergeable data (like a YouTube "like" counter or Google Docs), databases allow the conflict to happen and resolve it after the fact.
-* **Vector Clocks (The Detector):** Because server clocks aren't perfectly synced, databases use an array tracking the history of changes (e.g., `[India_Updates: 1, US_Updates: 1]`). If the database detects a "Branch", it knows a simultaneous edit occurred.
-* **CRDTs (The Resolver):** Conflict-free Replicated Data Types automatically merge the math. Instead of sending the final state (`11`), the nodes send the operation (`INCREMENT BY 1`), resulting in `12`. 
-* **Fallback:** If it cannot be merged by math, it prompts the user (e.g., "Merge Conflict" in Git).
+### Strategy A: Quorum Voting & Row-Level Locks (The Standard Method)
+This is the main strategy used by companies to enforce strict consistency across equal nodes. 
 
-### 3. Strategy B: Global Locks / Two-Phase Commit (Strict Consistency)
-For critical data where conflicts are unacceptable (like reserving the last flight seat), relying on CRDTs isn't enough. Modern global databases (like Google Spanner) solve this using **Distributed Global Locks** (Two-Phase Commit).
-* Before the India node executes a write, it sends a global lock request to the other primary nodes.
-* It waits until it receives acknowledgements confirming the row is locked.
-* While locked, if the US user tries to book the seat, the US node tells them to wait.
-* Once the India node writes the data, it releases the lock. This perfectly prevents conflicts before they even happen.
+If a node wants to write a piece of data (a single row), it must first run a democratic election:
+1. **Broadcast:** The node broadcasts a message: *"Hey, I am locking Row X for a write operation."*
+2. **Quorum (Majority):** The node waits for a **majority** of the other nodes to respond and accept the lock.
+3. **Write & Release:** Once it gets the majority vote, it executes the write and then releases the lock.
+
+**Why this is mathematically bulletproof:**
+It is mathematically impossible for two conflicting writes to both get a majority vote at the exact same time. If there are 5 nodes, you need 3 votes. You cannot have two different nodes both getting 3 votes. One will win, and the other will have to wait, preventing any data inconsistency!
+
+**What about Reads? (Eventual Consistency)**
+Even while a row is temporarily locked for a write, the other nodes can still process *read* requests for that row. They will simply return the older version of the data until the lock is released and the new data syncs over. This guarantees high availability through **Eventual Consistency**.
+
+```mermaid
+flowchart TD
+    User["User (Writes Data)"] --> NodeA
+    
+    subgraph Multi_Primary_Cluster [Equal Multi-Primary Nodes]
+        NodeA["Node A
+(Requests Lock)"]:::primary
+        NodeB["Node B
+(Votes Yes)"]:::primary
+        NodeC["Node C
+(Votes Yes)"]:::primary
+        NodeD["Node D
+(Waits)"]:::primary
+        NodeE["Node E
+(Waits)"]:::primary
+    end
+    
+    NodeA == "1. Broadcast Lock for Row X" ==> NodeB & NodeC & NodeD & NodeE
+    NodeB -. "2. Votes Yes" .-> NodeA
+    NodeC -. "2. Votes Yes" .-> NodeA
+    
+    Note["Node A gets Majority (3/5)
+3. Writes Row X
+4. Releases Lock"]:::note
+    NodeA -.- Note
+
+    classDef primary fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px;
+    classDef note fill:#fff9c4,stroke:#fbc02d,color:#000;
+```
+
+### Why Most Companies Still Use Single-Primary
+While you *can* use strict sync methods (waiting for 100% acceptance from all nodes instead of a majority) or complex quorum voting, these mechanisms require a massive amount of network calls for every single write. It is highly complex and introduces network latency. 
+Because of this complexity, **the majority of big companies prefer to just stick to a Single-Primary (Master-Slave) architecture** for their databases.
+
+### Strategy B: CRDTs and Vector Clocks (Conflict-Free Replicated Data Types)
+As a secondary strategy or fallback, some databases allow writes to happen immediately without locking, and resolve the conflicts mathematically after the fact using CRDTs or Vector Clocks. These algorithms look at the timestamps and operation history to automatically merge conflicting changes (like how Google Docs allows two people to edit a sentence at the same time).
 
 </details>
 
